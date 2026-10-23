@@ -4,7 +4,6 @@ namespace PaulElpidorou\CustomLog;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use PaulElpidorou\CustomLog\Commands\CustomLogCommand;
 
 class CustomLogServiceProvider extends PackageServiceProvider
 {

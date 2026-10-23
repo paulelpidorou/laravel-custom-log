@@ -48,10 +48,8 @@ final class RequestProcessor implements ProcessorInterface
 
         $requestExtras = [];
 
-
         if (app()->bound('request')) {
             $request = request();
-
 
             if (config('custom-log.request_tracking.origin')) {
                 $requestExtras['origin'] = $request->header('origin') ?? $request->server('HTTP_REFERER') ?? '';
@@ -68,7 +66,6 @@ final class RequestProcessor implements ProcessorInterface
             if (config('custom-log.request_tracking.origin')) {
                 $requestExtras['origin'] = $request->server('HTTP_USER_AGENT', '');
             }
-
 
         }
 

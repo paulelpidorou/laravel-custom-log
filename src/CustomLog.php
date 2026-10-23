@@ -2,19 +2,9 @@
 
 namespace PaulElpidorou\CustomLog;
 
-
-use PaulElpidorou\CustomLog\Formatters\CustomFormatter;
-use PaulElpidorou\CustomLog\Processors\RequestProcessor;
-use Throwable;
-use function app;
-
-use App\Custom\Logs\Processors\UserProcessor;
-
-use function array_filter;
-use function count;
-
 use const DIRECTORY_SEPARATOR;
 
+use App\Custom\Logs\Processors\UserProcessor;
 use Illuminate\Support\Str;
 use Log;
 use Monolog\Level;
@@ -27,14 +17,17 @@ use Monolog\Processor\ProcessorInterface;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Monolog\Processor\TagProcessor;
 use Monolog\Processor\WebProcessor;
+use PaulElpidorou\CustomLog\Processors\RequestProcessor;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
-
-use function request;
-use function storage_path;
-
 use Stringable;
+use Throwable;
 use UnexpectedValueException;
+
+use function app;
+use function array_filter;
+use function count;
+use function request;
 
 final class CustomLog implements LoggerInterface
 {
@@ -47,37 +40,34 @@ final class CustomLog implements LoggerInterface
     private array $processors;
 
     /**
+     * @param  string|null  $name  The name that will appear inside logs,by default CustomLog
+     * @param  string|null  $filename  The file name of log file,by default $name.log
+     * @param  bool  $isRotating  Indicates that will save daily logs
+     * @param  bool  $isCommand  Set to true to add appropriate processors for a Command
+     * @param  bool  $isPlain  Set to true if log must be with fewer processors
+     * @param  bool  $extraProcessors  To add process id and memory usage
+     * @param  Level  $level  Set the lower debugging level
+     * @param  array  $tags  Optionally you can add tags for log
      *
-     * @param string|null $name The name that will appear inside logs,by default CustomLog
-     * @param string|null $filename The file name of log file,by default $name.log
-     * @param bool $isRotating Indicates that will save daily logs
-     * @param bool $isCommand Set to true to add appropriate processors for a Command
-     * @param bool $isPlain Set to true if log must be with fewer processors
-     * @param bool $extraProcessors To add process id and memory usage
-     * @param Level $level Set the lower debugging level
-     * @param array $tags Optionally you can add tags for log
      * @throws Throwable
      */
     public function __construct(
-        ?string         $name = null,
-        ?string         $filename = null,
-        protected bool  $isRotating = true,
-        protected bool  $isCommand = false,
-        protected bool  $isPlain = false,
-        protected bool  $extraProcessors = false,
+        ?string $name = null,
+        ?string $filename = null,
+        protected bool $isRotating = true,
+        protected bool $isCommand = false,
+        protected bool $isPlain = false,
+        protected bool $extraProcessors = false,
         protected Level $level = Level::Debug,
         protected array $tags = [],
     ) {
-        $this->name     = $name ?? config('custom-log.default_name');
-        $this->filename = $filename ?? $name . '.log';
+        $this->name = $name ?? config('custom-log.default_name');
+        $this->filename = $filename ?? $name.'.log';
 
         $this->createLog();
     }
 
-
     /**
-     * @param string $name
-     * @param array $arguments
      * @throws Throwable
      */
     public function __call(string $name, array $arguments): void
@@ -90,14 +80,14 @@ final class CustomLog implements LoggerInterface
     {
         // Exclude the $defaultLogger
         return [
-            'name'            => $this->name,
-            'filename'        => $this->filename,
-            'isRotating'      => $this->isRotating,
-            'isCommand'       => $this->isCommand,
-            'isPlain'         => $this->isPlain,
+            'name' => $this->name,
+            'filename' => $this->filename,
+            'isRotating' => $this->isRotating,
+            'isCommand' => $this->isCommand,
+            'isPlain' => $this->isPlain,
             'extraProcessors' => $this->extraProcessors,
-            'level'           => $this->level,
-            'tags'            => $this->tags,
+            'level' => $this->level,
+            'tags' => $this->tags,
         ];
     }
 
@@ -106,14 +96,14 @@ final class CustomLog implements LoggerInterface
      */
     public function __unserialize(array $data): void
     {
-        $this->name            = $data['name'];
-        $this->filename        = $data['filename'];
-        $this->isRotating      = $data['isRotating'];
-        $this->isCommand       = $data['isCommand'];
-        $this->isPlain         = $data['isPlain'];
+        $this->name = $data['name'];
+        $this->filename = $data['filename'];
+        $this->isRotating = $data['isRotating'];
+        $this->isCommand = $data['isCommand'];
+        $this->isPlain = $data['isPlain'];
         $this->extraProcessors = $data['extraProcessors'];
-        $this->level           = $data['level'];
-        $this->tags            = $data['tags'];
+        $this->level = $data['level'];
+        $this->tags = $data['tags'];
 
         $this->createLog(); // Reinitialize the logger
     }
@@ -141,10 +131,9 @@ final class CustomLog implements LoggerInterface
         $this->defaultLogger->warning($message, $context);
     }
 
-
     public function emergency(
         string|Stringable $message,
-        array             $context = [],
+        array $context = [],
     ): void {
         $this->defaultLogger->emergency($message, $context);
     }
@@ -154,14 +143,12 @@ final class CustomLog implements LoggerInterface
         $this->defaultLogger->alert($message, $context);
     }
 
-
     public function critical(
         string|Stringable $message,
-        array             $context = [],
+        array $context = [],
     ): void {
         $this->defaultLogger->critical($message, $context);
     }
-
 
     public function error(string|Stringable $message, array $context = []): void
     {
@@ -170,31 +157,27 @@ final class CustomLog implements LoggerInterface
 
     public function warning(
         string|Stringable $message,
-        array             $context = [],
+        array $context = [],
     ): void {
         $this->defaultLogger->warning($message, $context);
     }
 
-
     public function notice(
         string|Stringable $message,
-        array             $context = [],
+        array $context = [],
     ): void {
         $this->defaultLogger->notice($message, $context);
     }
-
 
     public function info(string|Stringable $message, array $context = []): void
     {
         $this->defaultLogger->info($message, $context);
     }
 
-
     public function debug(string|Stringable $message, array $context = []): void
     {
         $this->defaultLogger->debug($message, $context);
     }
-
 
     public function log(
         $level,
@@ -215,9 +198,9 @@ final class CustomLog implements LoggerInterface
     public function addMemoryProcessor(): self
     {
         // processor, memory usage
-        $this->pushProcessor(new MemoryUsageProcessor());
-        //Injects memory_get_peak_usage in all records
-        $this->pushProcessor(new MemoryPeakUsageProcessor());
+        $this->pushProcessor(new MemoryUsageProcessor);
+        // Injects memory_get_peak_usage in all records
+        $this->pushProcessor(new MemoryPeakUsageProcessor);
 
         return $this;
     }
@@ -241,29 +224,29 @@ final class CustomLog implements LoggerInterface
 
         if ($this->isRotating) {
             $driver = 'daily';
-            $days   = config('custom-log.max_files');
+            $days = config('custom-log.max_files');
         } else {
             $driver = 'single';
         }
 
-        //add default processors
+        // add default processors
         $this->addProcessors();
 
-        //add extras processors
+        // add extras processors
         if ($this->extraProcessors) {
             $this->addMemoryProcessor();
             $this->addProcessIdProcessor();
         }
-        if (0 !== count($this->tags)) {
+        if (count($this->tags) !== 0) {
             $this->addTagProcessor($this->tags);
         }
 
         $parameters = [
-            'driver'     => $driver,
-            'path'       => config('custom-log.storage_path').DIRECTORY_SEPARATOR.$this->filename,
+            'driver' => $driver,
+            'path' => config('custom-log.storage_path').DIRECTORY_SEPARATOR.$this->filename,
             'processors' => $this->processors,
-            'level'      => Str::lower($this->level->name),
-            'formatter'  => config('custom-log.formatter_class'),
+            'level' => Str::lower($this->level->name),
+            'formatter' => config('custom-log.formatter_class'),
         ];
 
         if ($this->isRotating) {
@@ -294,21 +277,21 @@ final class CustomLog implements LoggerInterface
 
     private function addCommandProcessors(): void
     {
-        //Injects line/file:class/function where the log message came from
+        // Injects line/file:class/function where the log message came from
         $this->pushProcessor(new IntrospectionProcessor($this->level));
-        //Processes a record's message according to PSR-3 rules
-        $this->pushProcessor(new PsrLogMessageProcessor());
+        // Processes a record's message according to PSR-3 rules
+        $this->pushProcessor(new PsrLogMessageProcessor);
     }
 
     private function addDefaultProcessors(): void
     {
-        //Injects line/file:class/function where the log message came from
+        // Injects line/file:class/function where the log message came from
         $this->pushProcessor(new IntrospectionProcessor($this->level));
-        //Processes a record's message according to PSR-3 rules
-        $this->pushProcessor(new PsrLogMessageProcessor());
-        //Inject subdomain in log
+        // Processes a record's message according to PSR-3 rules
+        $this->pushProcessor(new PsrLogMessageProcessor);
+        // Inject subdomain in log
         try {
-            //Inject user in log
+            // Inject user in log
             $this->pushProcessor(new UserProcessor($this->level));
         } catch (InvalidArgumentException $invalidArgumentException) {
             Log::channel('emergency')->error($invalidArgumentException);
@@ -325,7 +308,7 @@ final class CustomLog implements LoggerInterface
             Log::channel('emergency')->error($unexpectedValueException);
         }
 
-        //Inject request in log
+        // Inject request in log
         $this->pushProcessor(new RequestProcessor($this->level));
         // Injects Git branch and Git commit SHA in all records
         $this->pushProcessor(new GitProcessor($this->level));
@@ -333,8 +316,8 @@ final class CustomLog implements LoggerInterface
 
     private function addPlainProcessors(): void
     {
-        //Processes a record's message according to PSR-3 rules
-        $this->pushProcessor(new PsrLogMessageProcessor());
+        // Processes a record's message according to PSR-3 rules
+        $this->pushProcessor(new PsrLogMessageProcessor);
     }
 
     private function addLocalProcessors(): void
@@ -347,14 +330,14 @@ final class CustomLog implements LoggerInterface
             Log::channel('emergency')->error($unexpectedValueException);
         }
 
-        //Inject request in log
+        // Inject request in log
         $this->pushProcessor(new RequestProcessor($this->level));
     }
 
     private function addProcessIdProcessor(): void
     {
         // Adds value of getmypid into records
-        $this->pushProcessor(new ProcessIdProcessor());
+        $this->pushProcessor(new ProcessIdProcessor);
 
     }
 
@@ -368,11 +351,11 @@ final class CustomLog implements LoggerInterface
     private function getServerData(): array
     {
         $serverData = [
-            'REQUEST_URI'    => request()?->server('REQUEST_URI'),
-            'REMOTE_ADDR'    => request()?->server('REMOTE_ADDR'),
+            'REQUEST_URI' => request()?->server('REQUEST_URI'),
+            'REMOTE_ADDR' => request()?->server('REMOTE_ADDR'),
             'REQUEST_METHOD' => request()?->server('REQUEST_METHOD'),
-            'SERVER_NAME'    => request()?->server('SERVER_NAME'),
-            'HTTP_REFERER'   => request()?->server('HTTP_REFERER'),
+            'SERVER_NAME' => request()?->server('SERVER_NAME'),
+            'HTTP_REFERER' => request()?->server('HTTP_REFERER'),
         ];
 
         return array_filter($serverData);
@@ -383,4 +366,3 @@ final class CustomLog implements LoggerInterface
         $this->processors[] = $processor;
     }
 }
-

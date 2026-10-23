@@ -14,7 +14,6 @@ return [
 
     'default_name' => 'LaravelCustomLog',
 
-
     /*
     |--------------------------------------------------------------------------
     | Max files
@@ -23,7 +22,6 @@ return [
     */
 
     'max_files' => env('CUSTOM_LOG_MAX_FILES', 7),
-
 
     /*
     |--------------------------------------------------------------------------
@@ -43,12 +41,9 @@ return [
 
     'log_format' => "[%datetime%] %channel%.%level_name%: %message% %extra% %context%\n",
 
-
     'allow_inline_breaks' => true,
 
-
     'ignore_empty_context_and_extra' => true,
-
 
     'formatter_class' => CustomFormatter::class,
 
@@ -69,19 +64,18 @@ return [
     */
 
     'request_tracking' => [
-        //log request origin
+        // log request origin
         'origin' => env('CUSTOM_LOG_TRACKING_ORIGIN', true),
 
-        //log request url
+        // log request url
         'url' => env('CUSTOM_LOG_TRACKING_URL', true),
 
-        //log request ip address
+        // log request ip address
         'ip' => env('CUSTOM_LOG_TRACKING_IP', true),
 
-        //log request user agent
+        // log request user agent
         'user_agent' => env('CUSTOM_LOG_TRACKING_USER_AGENT', true),
     ],
-
 
     /*
     |--------------------------------------------------------------------------
@@ -91,16 +85,12 @@ return [
     */
 
     'user_tracking' => [
-        //log user id
+        // log user id
         'user_id' => env('CUSTOM_LOG_TRACKING_USER_ID', true),
 
-        //log user info
+        // log user info
         'user_name' => env('CUSTOM_LOG_TRACKING_USER_NAME', true),
 
-    ]
-
-
-
-
+    ],
 
 ];
