@@ -1,6 +1,6 @@
 <?php
 
-namespace VendorName\Skeleton\Database\Factories;
+namespace PaulElpidorou\CustomLog\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
